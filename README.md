@@ -15,3 +15,5 @@ C++ and SQL. Settings: `conf/mod-temucraft-starting-zone.conf.dist`.
 The 4 player-facing texts (chat messages, gossip options) are in the `module_string` table under the module name
 `mod-temucraft-starting-zone`, so they can be changed without rebuilding. Translations go in `module_string_locale` with the same
 module and id plus the locale (`deDE`, `esES`, `frFR`, ...). If a row is missing the English text in the code is used.
+
+Part of the Temucraft modules for AzerothCore 3.3.5a.
