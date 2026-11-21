@@ -1,7 +1,7 @@
 /*
  * mod-temucraft-starting-zone: start in any race's starting zone. A new character is asked, a few seconds after
  * first entering the world, where to begin: its own race's zone or another one (of its faction, unless
- * Temucraft.StartingZone.AnyFaction). The choice also sets the hearthstone. .startzone asks again while the
+ * Temucraft.StartingZone.AnyFaction). The choice also sets the hearthstone. .temucraft startzone asks again while the
  * character is at most Temucraft.StartingZone.MaxLevel. The zones and spots come from playercreateinfo.
  * Death knights keep their own start.
  */
@@ -137,7 +137,7 @@ public:
     {
         static ChatCommandTable commandTable =
         {
-            { "startzone", HandleStartZone, SEC_PLAYER, Console::No },
+            { "temucraft startzone", HandleStartZone, 103250, Console::No },
         };
         return commandTable;
     }

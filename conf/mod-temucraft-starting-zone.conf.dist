@@ -6,7 +6,7 @@
 #
 #    Temucraft.StartingZone.Enable
 #        Description: A new character is asked where to begin: its own race's starting zone or another one. The
-#                     choice also sets the hearthstone. .startzone asks again (up to MaxLevel). Death knights keep
+#                     choice also sets the hearthstone. .temucraft startzone asks again (up to MaxLevel). Death knights keep
 #                     their own start. The starting-zone quests are opened to the whole faction (module SQL).
 #        Default:     1
 
@@ -21,7 +21,7 @@ Temucraft.StartingZone.AnyFaction = 0
 
 #
 #    Temucraft.StartingZone.MaxLevel
-#        Description: Highest level at which .startzone still works.
+#        Description: Highest level at which .temucraft startzone still works.
 #        Default:     5
 
 Temucraft.StartingZone.MaxLevel = 5

@@ -2,7 +2,7 @@
 
 Begin in any race's starting zone. A few seconds after a new character first enters the world it is asked where to
 begin: its own race's zone or another one of its faction (`Temucraft.StartingZone.AnyFaction` adds the other
-faction's). The choice sets the hearthstone too. `.startzone` asks again up to level 5. Death knights keep their start.
+faction's). The choice sets the hearthstone too. `.temucraft startzone` asks again up to level 5. Death knights keep their start.
 
 The zones and spots come from `playercreateinfo`. The module's SQL opens the starting-zone quests to the whole
 faction (quests for some races of one faction become open to all of it; old values in
