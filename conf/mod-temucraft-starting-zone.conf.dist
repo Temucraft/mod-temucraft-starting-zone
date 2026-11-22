@@ -25,3 +25,11 @@ Temucraft.StartingZone.AnyFaction = 0
 #        Default:     5
 
 Temucraft.StartingZone.MaxLevel = 5
+
+#
+#    Temucraft.StartingZone.Enforce
+#        Description: 1 = a new character must pick: the menu comes back a few seconds after it is closed, and again
+#                     at the next login, until a zone is picked ("Stay in ..." counts). 0 = asked once.
+#        Default:     1
+
+Temucraft.StartingZone.Enforce = 1

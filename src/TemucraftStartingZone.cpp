@@ -3,7 +3,8 @@
  * first entering the world, where to begin: its own race's zone or another one (of its faction, unless
  * Temucraft.StartingZone.AnyFaction). The choice also sets the hearthstone. .temucraft startzone asks again while the
  * character is at most Temucraft.StartingZone.MaxLevel. The zones and spots come from playercreateinfo.
- * Death knights keep their own start.
+ * Death knights keep their own start. With Temucraft.StartingZone.Enforce the menu comes back until a zone is picked
+ * (kept in mod_temucraft_starting_zone_pending, characters DB, so logging out doesn't skip it).
  */
 #include "Chat.h"
 #include "TemucraftModuleText.h"
@@ -26,9 +27,19 @@ namespace
 
     struct StartSpot { uint8 race; uint32 map, zone; float x, y, z, o; TeamId team; std::string name; };
 
-    struct StartSettings { bool enable = true; bool anyFaction = false; uint32 maxLevel = 5; } scfg;
+    constexpr uint32 ASK_AGAIN_MS = 6000;   // Enforce: the menu comes back this long after it was sent
+
+    struct StartSettings { bool enable = true; bool anyFaction = false; uint32 maxLevel = 5; bool enforce = true; } scfg;
     std::vector<StartSpot> spots;                                  // one per zone
     std::unordered_map<ObjectGuid, uint32> pendingAsk;             // player -> ms until asked
+    std::unordered_set<ObjectGuid> mustChoose;                     // Enforce: asked again until they pick
+
+    void MarkPicked(Player* player)
+    {
+        mustChoose.erase(player->GetGUID());
+        pendingAsk.erase(player->GetGUID());
+        CharacterDatabase.Execute("DELETE FROM `mod_temucraft_starting_zone_pending` WHERE `guid` = {}", player->GetGUID().GetCounter());
+    }
 
     void LoadSpots()
     {
@@ -74,8 +85,30 @@ public:
 
     void OnPlayerFirstLogin(Player* player) override
     {
-        if (scfg.enable && player->getClass() != CLASS_DEATH_KNIGHT)
-            pendingAsk[player->GetGUID()] = 4000;
+        if (!scfg.enable || player->getClass() == CLASS_DEATH_KNIGHT)
+            return;
+        pendingAsk[player->GetGUID()] = 4000;
+        if (scfg.enforce)
+        {
+            mustChoose.insert(player->GetGUID());
+            CharacterDatabase.Execute("INSERT IGNORE INTO `mod_temucraft_starting_zone_pending` (`guid`) VALUES ({})", player->GetGUID().GetCounter());
+        }
+    }
+
+    // Enforce: a character that logged out before picking is asked again
+    void OnPlayerLogin(Player* player) override
+    {
+        if (!scfg.enable || !scfg.enforce || player->getClass() == CLASS_DEATH_KNIGHT || mustChoose.count(player->GetGUID()))
+            return;
+        if (!CharacterDatabase.Query("SELECT 1 FROM `mod_temucraft_starting_zone_pending` WHERE `guid` = {}", player->GetGUID().GetCounter()))
+            return;
+        if (player->GetLevel() > scfg.maxLevel)
+        {
+            MarkPicked(player);   // past the starting levels: nothing left to pick
+            return;
+        }
+        mustChoose.insert(player->GetGUID());
+        pendingAsk[player->GetGUID()] = 4000;
     }
 
     void OnPlayerUpdate(Player* player, uint32 diff) override
@@ -91,9 +124,21 @@ public:
         pendingAsk.erase(itr);
         if (player->IsInWorld())
             SendMenu(player);
+        // Enforce: closing the window doesn't skip it; it comes back until a zone is picked
+        if (mustChoose.count(player->GetGUID()))
+        {
+            if (player->GetLevel() > scfg.maxLevel)
+                MarkPicked(player);
+            else
+                pendingAsk[player->GetGUID()] = ASK_AGAIN_MS;
+        }
     }
 
-    void OnPlayerLogout(Player* player) override { pendingAsk.erase(player->GetGUID()); }
+    void OnPlayerLogout(Player* player) override
+    {
+        pendingAsk.erase(player->GetGUID());
+        mustChoose.erase(player->GetGUID());   // the DB row stays: asked again at the next login
+    }
 
     void OnPlayerGossipSelect(Player* player, uint32 menuId, uint32 /*sender*/, uint32 action) override
     {
@@ -105,8 +150,12 @@ public:
         StartSpot const& s = spots[action];
         if (!scfg.anyFaction && s.team != player->GetTeamId())
             return;
+        MarkPicked(player);
         if (s.zone == player->GetZoneId())
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage(TemucraftModuleText("mod-temucraft-starting-zone", player->GetSession(), 3, "|cff66ccff[Start]|r You begin in {}. Your hearthstone is set there."), s.name);
             return;
+        }
         player->SetHomebind(WorldLocation(s.map, s.x, s.y, s.z, s.o), s.zone);
         player->TeleportTo(s.map, s.x, s.y, s.z, s.o);
         ChatHandler(player->GetSession()).PSendSysMessage(TemucraftModuleText("mod-temucraft-starting-zone", player->GetSession(), 3, "|cff66ccff[Start]|r You begin in {}. Your hearthstone is set there."), s.name);
@@ -123,6 +172,7 @@ public:
         scfg.enable = sConfigMgr->GetOption<bool>("Temucraft.StartingZone.Enable", true);
         scfg.anyFaction = sConfigMgr->GetOption<bool>("Temucraft.StartingZone.AnyFaction", false);
         scfg.maxLevel = sConfigMgr->GetOption<uint32>("Temucraft.StartingZone.MaxLevel", 5);
+        scfg.enforce = sConfigMgr->GetOption<bool>("Temucraft.StartingZone.Enforce", true);
     }
 
     void OnStartup() override { LoadSpots(); }
