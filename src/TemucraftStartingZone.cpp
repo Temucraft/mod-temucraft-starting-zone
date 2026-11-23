@@ -6,6 +6,7 @@
  * Death knights keep their own start. With Temucraft.StartingZone.Enforce the menu comes back until a zone is picked
  * (kept in mod_temucraft_starting_zone_pending, characters DB, so logging out doesn't skip it).
  */
+#include "TemucraftLocked.h"
 #include "Chat.h"
 #include "TemucraftModuleText.h"
 #include "ChatCommand.h"
@@ -31,8 +32,8 @@ namespace
 
     struct StartSettings { bool enable = true; bool anyFaction = false; uint32 maxLevel = 5; bool enforce = true; } scfg;
     std::vector<StartSpot> spots;                                  // one per zone
-    std::unordered_map<ObjectGuid, uint32> pendingAsk;             // player -> ms until asked
-    std::unordered_set<ObjectGuid> mustChoose;                     // Enforce: asked again until they pick
+    Temucraft::LockedMap<ObjectGuid, uint32> pendingAsk;             // player -> ms until asked
+    Temucraft::LockedSet<ObjectGuid> mustChoose;                     // Enforce: asked again until they pick
 
     void MarkPicked(Player* player)
     {
