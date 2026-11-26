@@ -8,6 +8,9 @@ The zones and spots come from `playercreateinfo`. The module's SQL opens the sta
 faction (quests for some races of one faction become open to all of it; old values in
 `mod_temucraft_starting_zone_quest_backup`), so every zone has its quests for whoever begins there.
 
+Each zone line other than the one the character is in asks "Teleport to: <zone>" first (Accept / Cancel), from
+`TemucraftPlayerSettings.h` (same file as mod-temucraft-player-settings); players who turned "Ask before teleports and portals" off get it without the popup.
+
 C++ and SQL. Settings: `conf/mod-temucraft-starting-zone.conf.dist`.
 
 ## Texts and translations

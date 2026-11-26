@@ -9,6 +9,7 @@
 #include "TemucraftLocked.h"
 #include "Chat.h"
 #include "TemucraftModuleText.h"
+#include "TemucraftPlayerSettings.h"
 #include "ChatCommand.h"
 #include "Config.h"
 #include "DBCStores.h"
@@ -72,7 +73,9 @@ namespace
             if (!scfg.anyFaction && s.team != player->GetTeamId())
                 continue;
             bool home = s.zone == player->GetZoneId();
-            AddGossipItemFor(player, GOSSIP_ICON_TAXI, home ? TemucraftModuleText("mod-temucraft-starting-zone", player, 1, "Stay in " ) + s.name : TemucraftModuleText("mod-temucraft-starting-zone", player, 2, "Begin in " ) + s.name, GOSSIP_SENDER_MAIN, uint32(i));
+            // a line that moves the player asks "Teleport to: <zone>" first (unless he turned prompts off)
+            AddGossipItemFor(player, GOSSIP_ICON_TAXI, home ? TemucraftModuleText("mod-temucraft-starting-zone", player, 1, "Stay in " ) + s.name : TemucraftModuleText("mod-temucraft-starting-zone", player, 2, "Begin in " ) + s.name, GOSSIP_SENDER_MAIN, uint32(i),
+                home ? std::string() : TemucraftTeleportBox(player, s.name), 0, false);
         }
         player->PlayerTalkClass->GetGossipMenu().SetMenuId(START_MENU);
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, player->GetGUID());
