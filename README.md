@@ -41,4 +41,10 @@ The 6 player-facing texts (chat messages, gossip options) are in the `module_str
 `mod-temucraft-starting-zone`, so they can be changed without rebuilding. Translations go in `module_string_locale` with the same
 module and id plus the locale (`deDE`, `esES`, `frFR`, ...). If a row is missing the English text in the code is used.
 
+## Shared headers
+
+`TemucraftPlayerSettings.h`, `TemucraftModuleText.h`, `TemucraftAddonMessage.h` and `TemucraftLocked.h` in `src/` are shared with other Temucraft modules and must stay the same everywhere (all modules
+share one include path). `_tools\check_shared_headers.py` checks the copies (`--fix` copies the canonical one over
+them). The canonical `TemucraftPlayerSettings.h` is in mod-temucraft-player-settings, `TemucraftModuleText.h` is in mod-temucraft, `TemucraftAddonMessage.h` is in mod-temucraft-client-version, `TemucraftLocked.h` is in mod-temucraft-classes. Change the canonical copy, then run the check with `--fix`.
+
 Part of the Temucraft modules for AzerothCore 3.3.5a.
