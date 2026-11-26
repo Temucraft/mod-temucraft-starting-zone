@@ -5,7 +5,10 @@
 DELETE FROM `rbac_linked_permissions` WHERE `linkedId` BETWEEN 103250 AND 103299;
 DELETE FROM `rbac_permissions` WHERE `id` BETWEEN 103250 AND 103299;
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
-(103250, 'Command: temucraft startzone');
+(103250, 'Command: temucraft startzone'),
+(103251, 'Command: temucraft startzone reset');
 INSERT INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES
 (192, 103250),
-(1014, 103250);
+(1014, 103250),
+(192, 103251),
+(1014, 103251);

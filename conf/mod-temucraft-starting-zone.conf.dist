@@ -28,8 +28,9 @@ Temucraft.StartingZone.MaxLevel = 5
 
 #
 #    Temucraft.StartingZone.Enforce
-#        Description: 1 = a new character must pick: the menu comes back a few seconds after it is closed, and again
-#                     at the next login, until a zone is picked ("Stay in ..." counts). 0 = asked once.
+#        Description: 1 = a new character must pick: the window comes back a few seconds after it is closed (the gossip
+#                     menu of a client without the window: every 45 seconds), and again at the next login, until a zone
+#                     is picked ("Stay in ..." counts). Once picked it is never asked again. 0 = asked once.
 #        Default:     1
 
 Temucraft.StartingZone.Enforce = 1
